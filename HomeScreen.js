@@ -6,45 +6,91 @@ import {
     TouchableOpacity,
     StyleSheet,
     Animated,
+    Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function HomeScreen({ navigation }) {
-    const [users, setUsers] = useState([]); // no dummy data
+    const [users, setUsers] = useState([
+        {
+            id: '1',
+            name: 'Roshan',
+            phone: '9817113485',
+            money: '500',
+            date: new Date(),
+        },
+    ]);
 
+    // Delete user confirmation
+    const handleDelete = (id) => {
+        Alert.alert(
+            'Delete User',
+            'Are you sure you want to delete this user?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => setUsers(users.filter((user) => user.id !== id)),
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
+    // Render empty view
     const renderEmptyState = () => (
         <View style={styles.emptyContainer}>
             <Icon name="people-outline" size={60} color="#b2bec3" />
             <Text style={styles.emptyText}>No users yet</Text>
-            <Text style={styles.subText}>Add your first user to get started</Text>
+            <Text style={styles.subText}>Tap the + button to add one</Text>
         </View>
     );
 
+    // Render each card
     const renderUserCard = ({ item }) => (
-        <TouchableOpacity
-            style={styles.card}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('UserForm', { user: item })}
-        >
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                <Icon name="person-circle-outline" size={24} color="#0984e3" />
-                <Text style={styles.name}>{item.name}</Text>
+        <Animated.View style={styles.card}>
+            <View style={styles.cardHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Icon name="person-circle-outline" size={28} color="#0984e3" />
+                    <Text style={styles.name}>{item.name}</Text>
+                </View>
+
+                {/* Edit / Delete Buttons */}
+                <View style={styles.actionBtns}>
+                    <TouchableOpacity
+                        style={[styles.iconBtn, { backgroundColor: '#74b9ff' }]}
+                        onPress={() => navigation.navigate('UserForm', { user: item })}
+                    >
+                        <Icon name="create-outline" size={18} color="#fff" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.iconBtn, { backgroundColor: '#ff7675' }]}
+                        onPress={() => handleDelete(item.id)}
+                    >
+                        <Icon name="trash-outline" size={18} color="#fff" />
+                    </TouchableOpacity>
+                </View>
             </View>
+
             <View style={styles.detailRow}>
                 <Icon name="call-outline" size={16} color="#636e72" />
                 <Text style={styles.detailText}>{item.phone}</Text>
             </View>
+
             <View style={styles.detailRow}>
                 <Icon name="cash-outline" size={16} color="#636e72" />
                 <Text style={styles.detailText}>Rs {item.money}</Text>
             </View>
+
             <View style={styles.detailRow}>
                 <Icon name="calendar-outline" size={16} color="#636e72" />
                 <Text style={styles.detailText}>
                     {new Date(item.date).toDateString()}
                 </Text>
             </View>
-        </TouchableOpacity>
+        </Animated.View>
     );
 
     return (
@@ -90,24 +136,30 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#fff',
-        borderRadius: 16,
+        borderRadius: 18,
         padding: 16,
-        marginBottom: 12,
+        marginBottom: 14,
         shadowColor: '#000',
-        shadowOpacity: 0.07,
+        shadowOpacity: 0.08,
         shadowRadius: 6,
-        elevation: 3,
+        elevation: 4,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 6,
     },
     name: {
         fontSize: 18,
         fontWeight: '600',
         color: '#2d3436',
-        marginLeft: 6,
+        marginLeft: 8,
     },
     detailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 2,
+        marginVertical: 3,
         marginLeft: 4,
     },
     detailText: {
@@ -115,11 +167,23 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#636e72',
     },
+    actionBtns: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 6,
+    },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 60,
+        marginTop: 80,
     },
     emptyText: {
         fontSize: 20,
